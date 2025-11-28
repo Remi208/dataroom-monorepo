@@ -1,0 +1,30 @@
+{
+    "name": "dataroom-monorepo",
+    "version": "1.0.0",
+    "description": "Data Room Software MVP - Monorepo for document management and collaboration",
+    "private": true,
+    "packageManager": "pnpm@9.0.0",
+    "engines": {
+        "pnpm": "^9.0.0"
+    },
+    "pnpm": {
+        "overrides": {},
+        "peerDependencyRules": {
+            "ignoreMissing": []
+        }
+    },
+    "scripts": {
+        "dev": "pnpm -r --parallel run dev",
+        "build": "pnpm -r run build",
+        "test": "pnpm -r run test",
+        "lint": "pnpm -r run lint",
+        "clean": "pnpm -r exec rm -rf node_modules && rm -rf node_modules pnpm-lock.yaml"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2",
+        "vitest": "^0.34.6"
+    },
+    "dependencies": {
+        "pdfjs-dist": "^5.4.394"
+    }
+}

@@ -1,0 +1,28 @@
+import { useTranslation } from 'react-i18next'
+
+export function LanguageSwitcher() {
+    const { i18n } = useTranslation()
+
+    return (
+        <div className="flex gap-2">
+            <button
+                onClick={() => i18n.changeLanguage('en')}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${i18n.language === 'en'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                    }`}
+            >
+                English
+            </button>
+            <button
+                onClick={() => i18n.changeLanguage('es')}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${i18n.language === 'es'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                    }`}
+            >
+                Español
+            </button>
+        </div>
+    )
+}

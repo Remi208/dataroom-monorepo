@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "buildCommand": "pnpm install && pnpm run build",
+    "installCommand": "pnpm install --frozen-lockfile",
+    "env": {
+        "NODE_ENV": "production",
+        "PNPM_HOME": "/pnpm"
+    },
+    "pnpmWorkspace": true
+}

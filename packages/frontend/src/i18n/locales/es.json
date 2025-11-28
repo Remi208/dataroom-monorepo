@@ -1,0 +1,70 @@
+{
+    "app": {
+        "title": "Sala de Datos",
+        "subtitle": "Administra tus archivos y carpetas",
+        "noDataRoomSelected": "Ninguna Sala de Datos Seleccionada",
+        "noDataRoomDescription": "Crea o selecciona una sala de datos para comenzar",
+        "language": "Idioma"
+    },
+    "folder": {
+        "newFolder": "Nueva Carpeta",
+        "rename": "Renombrar",
+        "delete": "Eliminar",
+        "maxDepthReached": "Profundidad máxima alcanzada",
+        "folderName": "Nombre de la carpeta...",
+        "empty": "Esta carpeta está vacía. Crea una carpeta o sube un PDF para comenzar.",
+        "dragHere": "Arrastra archivos aquí para subir a la carpeta raíz"
+    },
+    "file": {
+        "upload": "Subir",
+        "download": "Descargar",
+        "delete": "Eliminar",
+        "rename": "Renombrar",
+        "preview": "Vista previa",
+        "dropZone": "Arrastra y suelta archivos PDF aquí o haz clic para subir",
+        "supportedFormat": "Formato soportado: PDF"
+    },
+    "dataroom": {
+        "title": "Salas de Datos",
+        "label": "Sala de Datos",
+        "newDataRoom": "Nueva Sala de Datos",
+        "rename": "Renombrar",
+        "delete": "Eliminar",
+        "dataroomName": "Nombre de la sala de datos...",
+        "all": "Todas las Salas de Datos",
+        "loading": "Cargando...",
+        "noDataRooms": "Sin salas de datos aún. ¡Crea una para comenzar!",
+        "created": "Creado",
+        "duplicateNameError": "Una sala de datos con el nombre \"{name}\" ya existe. Por favor, elige un nombre diferente.",
+        "deleteConfirm": "¿Estás seguro de que quieres eliminar \"{name}\"? Esto eliminará todas las carpetas y archivos."
+    },
+    "buttons": {
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "create": "Crear",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "done": "Hecho"
+    },
+    "messages": {
+        "confirmDelete": "¿Estás seguro de que quieres eliminar esto?",
+        "maxNestingDepth": "Se alcanzó la profundidad máxima de anidamiento (5 niveles).",
+        "cannotMoveFolderDepth": "No se puede mover la carpeta aquí. Se excedería la profundidad máxima de anidamiento (5 niveles).",
+        "invalidFileFormat": "Formato soportado: PDF"
+    },
+    "search_placeholder": "Buscar archivos por nombre o contenido...",
+    "search_button": "Buscar",
+    "filter_results": "Filtrar Resultados",
+    "recent_searches": "Búsquedas Recientes",
+    "searching": "Buscando...",
+    "no_results": "No se encontraron resultados",
+    "no_results_description": "Intenta con palabras clave diferentes o verifica los filtros",
+    "found_results": "Se encontraron {{count}} resultados",
+    "search_in_names": "Buscar en Nombres de Archivos",
+    "search_in_content": "Buscar en Contenido de Archivos",
+    "reset_filters": "Reiniciar Filtros",
+    "names_disabled": "Nombres deshabilitados",
+    "content_disabled": "Contenido deshabilitado",
+    "name_match": "Nombre",
+    "content_match": "Contenido"
+}
