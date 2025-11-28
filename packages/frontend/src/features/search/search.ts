@@ -56,6 +56,11 @@ export const extractPDFText = async (buffer: ArrayBuffer): Promise<string> => {
     try {
         initPdfWorker()
 
+        if (!buffer || buffer.byteLength === 0) {
+            console.warn('PDF buffer is empty')
+            return ''
+        }
+
         // Create a copy of the buffer to avoid "detached ArrayBuffer" errors on subsequent calls
         const bufferCopy = buffer.slice(0)
 
@@ -83,9 +88,16 @@ export const extractPDFText = async (buffer: ArrayBuffer): Promise<string> => {
 
         const result = fullText.trim()
 
+        if (!result) {
+            console.warn('PDF text extraction returned empty result')
+        }
+
         return result
     } catch (e) {
         console.error('PDF text extraction failed:', e)
+        if (e instanceof Error) {
+            console.error('Error details:', e.message, e.stack)
+        }
         return ''
     }
 }
@@ -146,15 +158,28 @@ export const searchByContent = async (
     const dataRoom = dataRooms[0]
     if (!dataRoom) return []
 
+    console.log(`[Search] Starting content search for "${query}" in ${files.size} files`)
+
     for (const file of Array.from(files.values())) {
         // Check if file is PDF by type or extension (handles macOS MIME type issues)
         const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
         
-        if (!isPDF) continue
-        if (!file.data) continue
+        if (!isPDF) {
+            continue
+        }
+        if (!file.data) {
+            console.warn(`[Search] File ${file.name} has no data`)
+            continue
+        }
 
         try {
+            console.log(`[Search] Extracting text from ${file.name}...`)
             const text = await extractPDFText(file.data)
+
+            if (!text) {
+                console.warn(`[Search] No text extracted from ${file.name}`)
+                continue
+            }
 
             const textLower = text.toLowerCase()
 
@@ -164,6 +189,8 @@ export const searchByContent = async (
                 const start = Math.max(0, index - 50)
                 const end = Math.min(text.length, index + query.length + 50)
                 const matchedText = text.substring(start, end).trim()
+
+                console.log(`[Search] Found match in ${file.name}`)
 
                 results.push({
                     fileId: file.id,
@@ -176,16 +203,17 @@ export const searchByContent = async (
                     createdAt: file.createdAt,
                     size: file.size,
                 })
+            } else {
+                console.log(`[Search] No match found in ${file.name}`)
             }
         } catch (error) {
-            console.warn(`Error searching content in file ${file.name}:`, error)
+            console.error(`[Search] Error searching content in file ${file.name}:`, error)
         }
     }
 
+    console.log(`[Search] Content search completed. Found ${results.length} results`)
     return results.sort((a, b) => b.createdAt - a.createdAt)
-}
-
-/**
+}/**
  * Filter search results by date range
  */
 export const filterByDateRange = (
