@@ -147,32 +147,38 @@ export const searchByContent = async (
     if (!dataRoom) return []
 
     for (const file of Array.from(files.values())) {
-        // Only search PDFs for now
-        if (file.type !== 'application/pdf') continue
+        // Check if file is PDF by type or extension (handles macOS MIME type issues)
+        const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+        
+        if (!isPDF) continue
         if (!file.data) continue
 
-        const text = await extractPDFText(file.data)
+        try {
+            const text = await extractPDFText(file.data)
 
-        const textLower = text.toLowerCase()
+            const textLower = text.toLowerCase()
 
-        if (textLower.includes(queryLower)) {
-            // Find the context around the match
-            const index = textLower.indexOf(queryLower)
-            const start = Math.max(0, index - 50)
-            const end = Math.min(text.length, index + query.length + 50)
-            const matchedText = text.substring(start, end).trim()
+            if (textLower.includes(queryLower)) {
+                // Find the context around the match
+                const index = textLower.indexOf(queryLower)
+                const start = Math.max(0, index - 50)
+                const end = Math.min(text.length, index + query.length + 50)
+                const matchedText = text.substring(start, end).trim()
 
-            results.push({
-                fileId: file.id,
-                fileName: file.name,
-                parentFolderPath: getFilePath(file.parentFolderId, folders),
-                dataRoomId: dataRoom.id,
-                dataRoomName: dataRoom.name,
-                matchType: 'content',
-                matchedText: `...${matchedText}...`,
-                createdAt: file.createdAt,
-                size: file.size,
-            })
+                results.push({
+                    fileId: file.id,
+                    fileName: file.name,
+                    parentFolderPath: getFilePath(file.parentFolderId, folders),
+                    dataRoomId: dataRoom.id,
+                    dataRoomName: dataRoom.name,
+                    matchType: 'content',
+                    matchedText: `...${matchedText}...`,
+                    createdAt: file.createdAt,
+                    size: file.size,
+                })
+            }
+        } catch (error) {
+            console.warn(`Error searching content in file ${file.name}:`, error)
         }
     }
 
