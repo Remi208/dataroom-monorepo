@@ -2,24 +2,29 @@ import * as pdfjs from 'pdfjs-dist'
 import { Folder, DataRoom } from '../../types'
 
 // Initialize PDF.js worker
+let workerInitialized = false
 const initPdfWorker = () => {
-    if (!pdfjs.GlobalWorkerOptions.workerSrc && typeof window !== 'undefined') {
-        // Try multiple worker path strategies for cross-platform compatibility
-        if (!pdfjs.GlobalWorkerOptions.workerSrc) {
+    if (workerInitialized) return
+    
+    if (typeof window !== 'undefined') {
+        try {
+            // Use the bundled worker from node_modules - this is more reliable on Vercel
+            console.log('[PDF] Initializing worker from bundled distribution')
+            pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+                'pdfjs-dist/build/pdf.worker.min.mjs',
+                import.meta.url
+            ).href
+            console.log('[PDF] Worker URL:', pdfjs.GlobalWorkerOptions.workerSrc)
+            workerInitialized = true
+        } catch (bundledError) {
+            console.error('[PDF] Bundled worker setup failed:', bundledError)
             try {
-                // Strategy 1: Use CDN for production reliability
-                pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
-            } catch {
-                try {
-                    // Strategy 2: Fallback to local bundled worker
-                    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-                        'pdfjs-dist/build/pdf.worker.min.mjs',
-                        import.meta.url
-                    ).href
-                } catch {
-                    // Strategy 3: Last resort - disable worker (slower but functional)
-                    console.warn('PDF worker initialization failed, performance may be degraded')
-                }
+                // Fallback: Try CDN with .mjs extension (ES module version)
+                console.log('[PDF] Trying CDN with ES module')
+                pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.mjs`
+                workerInitialized = true
+            } catch (cdnError) {
+                console.error('[PDF] CDN worker also failed:', cdnError)
             }
         }
     }
@@ -57,15 +62,19 @@ export const extractPDFText = async (buffer: ArrayBuffer): Promise<string> => {
         initPdfWorker()
 
         if (!buffer || buffer.byteLength === 0) {
-            console.warn('PDF buffer is empty')
+            console.warn('[PDF] Buffer is empty')
             return ''
         }
+
+        console.log(`[PDF] Processing buffer of ${(buffer.byteLength / 1024).toFixed(2)}KB`)
 
         // Create a copy of the buffer to avoid "detached ArrayBuffer" errors on subsequent calls
         const bufferCopy = buffer.slice(0)
 
+        console.log('[PDF] Loading PDF document...')
         const pdf = await pdfjs.getDocument({ data: bufferCopy }).promise
 
+        console.log(`[PDF] PDF loaded, ${pdf.numPages} pages found`)
         let fullText = ''
 
         // Extract text from all pages
@@ -79,9 +88,10 @@ export const extractPDFText = async (buffer: ArrayBuffer): Promise<string> => {
                     .map((item: any) => item.str)
                     .join(' ')
 
+                console.log(`[PDF] Page ${i}: extracted ${pageText.length} chars`)
                 fullText += pageText + '\n'
             } catch (pageError) {
-                console.warn(`Failed to extract text from page ${i}:`, pageError)
+                console.warn(`[PDF] Failed to extract text from page ${i}:`, pageError)
                 continue
             }
         }
@@ -89,14 +99,16 @@ export const extractPDFText = async (buffer: ArrayBuffer): Promise<string> => {
         const result = fullText.trim()
 
         if (!result) {
-            console.warn('PDF text extraction returned empty result')
+            console.warn('[PDF] PDF extraction returned empty result - PDF may be scanned image')
+        } else {
+            console.log(`[PDF] Total text extracted: ${result.length} chars`)
         }
 
         return result
     } catch (e) {
-        console.error('PDF text extraction failed:', e)
+        console.error('[PDF] Text extraction failed:', e)
         if (e instanceof Error) {
-            console.error('Error details:', e.message, e.stack)
+            console.error('[PDF] Error details:', e.message, e.stack)
         }
         return ''
     }
@@ -163,7 +175,7 @@ export const searchByContent = async (
     for (const file of Array.from(files.values())) {
         // Check if file is PDF by type or extension (handles macOS MIME type issues)
         const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
-        
+
         if (!isPDF) {
             continue
         }
