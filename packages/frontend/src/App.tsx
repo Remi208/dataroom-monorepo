@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense, lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DataRoom } from './types'
 import { store } from './store'
@@ -6,8 +6,11 @@ import { DataRoomList } from './components/DataRoomList'
 import { DataRoomView } from './components/DataRoomView'
 import { LanguageSwitcher } from './components/LanguageSwitcher'
 import SearchBar from './components/SearchBar'
-import SearchResults from './components/SearchResults'
+import { LoadingSpinner } from './components/LoadingSpinner'
 import { performSearch, SearchResult } from './features/search'
+
+// Lazy load heavy components
+const SearchResults = lazy(() => import('./components/SearchResults'))
 
 interface SearchFilters {
     searchInContent: boolean
@@ -202,11 +205,13 @@ export default function App() {
                             initialQuery={searchQuery}
                             initialFilters={searchFilters}
                         />
-                        <SearchResults
-                            results={searchResults}
-                            isLoading={isSearching}
-                            query={searchQuery}
-                        />
+                        <Suspense fallback={<LoadingSpinner />}>
+                            <SearchResults
+                                results={searchResults}
+                                isLoading={isSearching}
+                                query={searchQuery}
+                            />
+                        </Suspense>
                     </>
                 ) : currentDataRoom ? (
                     <>

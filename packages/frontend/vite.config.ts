@@ -24,4 +24,16 @@ export default defineConfig({
             },
         },
     },
+    build: {
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'pdfjs': ['pdfjs-dist'],
+                    'radix-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-scroll-area', '@radix-ui/react-toast'],
+                    'i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
+                },
+            },
+        },
+    },
 })
