@@ -50,7 +50,13 @@
         "confirmDelete": "Are you sure you want to delete this?",
         "maxNestingDepth": "Maximum nesting depth (5 levels) reached.",
         "cannotMoveFolderDepth": "Cannot move folder here. Maximum nesting depth (5 levels) would be exceeded.",
-        "invalidFileFormat": "Supported format: PDF"
+        "invalidFileFormat": "Supported format: PDF",
+        "fileUploadSuccess": "File \"{{name}}\" uploaded successfully",
+        "fileTooLarge": "File \"{{name}}\" is too large ({{size}} MB). Maximum size is 5 MB.",
+        "fileTypeNotSupported": "File type not supported: {{name}}. Supported format: PDF",
+        "fileReadError": "Failed to read file \"{{name}}\"",
+        "storageQuotaExceeded": "Storage quota exceeded. Please delete some files or data rooms to continue.",
+        "uploadError": "Failed to upload file: {{error}}"
     },
     "search_placeholder": "Search files by name or content...",
     "search_button": "Search",

@@ -50,7 +50,13 @@
         "confirmDelete": "¿Estás seguro de que quieres eliminar esto?",
         "maxNestingDepth": "Se alcanzó la profundidad máxima de anidamiento (5 niveles).",
         "cannotMoveFolderDepth": "No se puede mover la carpeta aquí. Se excedería la profundidad máxima de anidamiento (5 niveles).",
-        "invalidFileFormat": "Formato soportado: PDF"
+        "invalidFileFormat": "Formato soportado: PDF",
+        "fileUploadSuccess": "Archivo \"{{name}}\" cargado exitosamente",
+        "fileTooLarge": "El archivo \"{{name}}\" es demasiado grande ({{size}} MB). El tamaño máximo es 5 MB.",
+        "fileTypeNotSupported": "Tipo de archivo no soportado: {{name}}. Formato soportado: PDF",
+        "fileReadError": "Error al leer el archivo \"{{name}}\"",
+        "storageQuotaExceeded": "Cuota de almacenamiento excedida. Por favor, elimina algunos archivos o salas de datos para continuar.",
+        "uploadError": "Error al cargar el archivo: {{error}}"
     },
     "search_placeholder": "Buscar archivos por nombre o contenido...",
     "search_button": "Buscar",

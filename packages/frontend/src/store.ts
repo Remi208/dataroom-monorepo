@@ -99,7 +99,14 @@ class DataRoomStore {
                 data: file.data ? arrayBufferToBase64(file.data) : null,
             })),
         }
-        localStorage.setItem(this.storageKey, JSON.stringify(data))
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify(data))
+        } catch (error) {
+            if (error instanceof Error && error.name === 'QuotaExceededError') {
+                throw new Error('Storage quota exceeded. Please delete some files or data rooms to continue.')
+            }
+            throw error
+        }
     }
 
     createDataRoom(name: string): DataRoom {

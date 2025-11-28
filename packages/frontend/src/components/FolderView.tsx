@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSnackbar } from 'notistack'
 import { Folder, FileMetadata } from '../types'
 import { store } from '../store'
 import { CONSTANTS } from '../shared/constants/app'
@@ -14,6 +15,7 @@ interface FolderViewProps {
 
 export function FolderView({ folder, onUpdate }: FolderViewProps) {
     const { t } = useTranslation()
+    const { enqueueSnackbar } = useSnackbar()
     const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set([folder.id]))
     const [showNewFolderForm, setShowNewFolderForm] = useState<string | null>(null)
     const [newFolderName, setNewFolderName] = useState('')
@@ -92,22 +94,59 @@ export function FolderView({ folder, onUpdate }: FolderViewProps) {
         }
     }
 
+    const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB in bytes
+
     const handleFileUpload = (parentFolderId: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.currentTarget.files
         if (files) {
             Array.from(files).forEach((file) => {
+                // Check file size first
+                if (file.size > MAX_FILE_SIZE) {
+                    const sizeMB = (file.size / 1024 / 1024).toFixed(1)
+                    enqueueSnackbar(
+                        t('messages.fileTooLarge', { name: file.name, size: sizeMB }),
+                        { variant: 'error' }
+                    )
+                    return
+                }
+
                 if (isFileAllowed(file)) {
                     const reader = new FileReader()
                     reader.onload = (event) => {
                         if (event.target?.result instanceof ArrayBuffer) {
                             const uniqueName = getUniqueFileName(file.name, parentFolderId)
-                            store.uploadFile(parentFolderId, uniqueName, event.target.result, file.type)
-                            onUpdate()
+                            try {
+                                store.uploadFile(parentFolderId, uniqueName, event.target.result, file.type)
+                                enqueueSnackbar(
+                                    t('messages.fileUploadSuccess', { name: file.name }),
+                                    { variant: 'success' }
+                                )
+                                onUpdate()
+                            } catch (error) {
+                                const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+                                if (errorMessage.includes('quota')) {
+                                    enqueueSnackbar(t('messages.storageQuotaExceeded'), { variant: 'error' })
+                                } else {
+                                    enqueueSnackbar(
+                                        t('messages.uploadError', { error: errorMessage }),
+                                        { variant: 'error' }
+                                    )
+                                }
+                            }
                         }
+                    }
+                    reader.onerror = () => {
+                        enqueueSnackbar(
+                            t('messages.fileReadError', { name: file.name }),
+                            { variant: 'error' }
+                        )
                     }
                     reader.readAsArrayBuffer(file)
                 } else {
-                    alert(`File type not supported: ${file.name}\nSupported format: PDF`)
+                    enqueueSnackbar(
+                        t('messages.fileTypeNotSupported', { name: file.name }),
+                        { variant: 'warning' }
+                    )
                 }
             })
         }

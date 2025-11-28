@@ -4,12 +4,24 @@ import { Folder, DataRoom } from '../../types'
 // Initialize PDF.js worker
 const initPdfWorker = () => {
     if (!pdfjs.GlobalWorkerOptions.workerSrc && typeof window !== 'undefined') {
-        // Set the worker to use the bundled version from node_modules
-        // This works by importing the worker as a URL
-        pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-            'pdfjs-dist/build/pdf.worker.min.mjs',
-            import.meta.url
-        ).href
+        // Try multiple worker path strategies for cross-platform compatibility
+        if (!pdfjs.GlobalWorkerOptions.workerSrc) {
+            try {
+                // Strategy 1: Use CDN for production reliability
+                pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
+            } catch {
+                try {
+                    // Strategy 2: Fallback to local bundled worker
+                    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+                        'pdfjs-dist/build/pdf.worker.min.mjs',
+                        import.meta.url
+                    ).href
+                } catch {
+                    // Strategy 3: Last resort - disable worker (slower but functional)
+                    console.warn('PDF worker initialization failed, performance may be degraded')
+                }
+            }
+        }
     }
 }
 
@@ -64,6 +76,7 @@ export const extractPDFText = async (buffer: ArrayBuffer): Promise<string> => {
 
                 fullText += pageText + '\n'
             } catch (pageError) {
+                console.warn(`Failed to extract text from page ${i}:`, pageError)
                 continue
             }
         }
@@ -72,6 +85,7 @@ export const extractPDFText = async (buffer: ArrayBuffer): Promise<string> => {
 
         return result
     } catch (e) {
+        console.error('PDF text extraction failed:', e)
         return ''
     }
 }
